@@ -13,7 +13,10 @@ export class JobForm extends Component {
 
   handleClick(event) {
     event.preventDefault();
-    console.log('should post a new job:', this.state);
+    const {title, description} = this.state;
+    createJob({title, description}).then((job) => {
+      this.props.history.push(`/jobs/${job.id}`);
+    });
   }
 
   render() {
