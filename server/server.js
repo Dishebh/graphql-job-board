@@ -1,8 +1,12 @@
+const fs = require('fs')
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const express = require('express');
 const expressJwt = require('express-jwt');
 const jwt = require('jsonwebtoken');
+
+const { ApolloServer, gql } = require('apollo-server-express');
+
 const db = require('./db');
 
 const port = 9000;
@@ -13,6 +17,17 @@ app.use(cors(), bodyParser.json(), expressJwt({
   secret: jwtSecret,
   credentialsRequired: false
 }));
+
+
+// Construct a schema, using GraphQl schema language 
+const typeDefs = gql(fs.readFileSync('./schema.graphql', { encoding: 'utf8' }));
+
+// Provide resolver functions for your schema fields
+const resolvers = require('./resolvers')
+
+const apolloServer = new ApolloServer({ typeDefs, resolvers })
+
+apolloServer.applyMiddleware({app, path: '/graphql'});
 
 app.post('/login', (req, res) => {
   const {email, password} = req.body;
@@ -25,4 +40,6 @@ app.post('/login', (req, res) => {
   res.send({token});
 });
 
-app.listen(port, () => console.info(`Server started on port ${port}`));
+app.listen({ port }, () =>
+  console.log(`🚀 Server ready at http://localhost:9000${apolloServer.graphqlPath}`)
+);
