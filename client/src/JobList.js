@@ -6,7 +6,7 @@ export class JobList extends Component {
     const {jobs} = this.props;
     return (
       <ul className="box">
-        {jobs.map(this.renderJob.bind(this))}
+        {jobs && jobs.map(this.renderJob.bind(this))}
       </ul>
     );
   }
